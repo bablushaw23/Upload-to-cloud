@@ -1,5 +1,6 @@
 package com.example.pdfuploads3.service;
 
+import com.example.pdfuploads3.exception.InvalidObjectException;
 import com.example.pdfuploads3.model.PdfFile;
 import com.example.pdfuploads3.repository.PdfFileRepository;
 import com.example.pdfuploads3.service.aws.AwsService;
@@ -9,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InvalidObjectException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,7 +33,7 @@ public class PdfFileService {
     public PdfFile addNewFile(String fileAddress) throws IOException {
         File file=new File(fileAddress);
         if(!validateFile(file)){
-            throw new InvalidObjectException("File must be <1MB and filename contains .pdf at last");
+            throw new InvalidObjectException("Error validating the file. Possible Issues: It must be <1MB, Wrong address, File is not pdf");
         }
         Integer hash=generateUniqueHash(file);
         String fileName= file.getName().substring(0,file.getName().lastIndexOf("."));
@@ -76,4 +79,16 @@ public class PdfFileService {
         return Math.abs(hash);
     }
 
+    public List<Map<String, String>> getAllFiles(){
+        List<PdfFile> files=repository.findAll();
+        List<Map<String, String>> allFiles= new ArrayList<>();
+        for(PdfFile each: files){
+            String downloadUrl=String.format("https://%s.s3.%s.amazonaws.com/%s",awsService.getS3Bucket(),awsService.getRegion(),each.getS3FileName());
+            allFiles.add(new HashMap<>(){{
+                put("file_name",each.getS3FileName());
+                put("download_url",downloadUrl);
+            }});
+        }
+        return allFiles;
+    }
 }

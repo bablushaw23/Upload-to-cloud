@@ -20,10 +20,6 @@ public class S3Upload implements Callable<Boolean> {
 
     @Override
     public Boolean call() {
-        try {
             return awsService.uploadToS3(file, fileName);
-        }catch (Exception ex){
-            return false;
-        }
     }
 }

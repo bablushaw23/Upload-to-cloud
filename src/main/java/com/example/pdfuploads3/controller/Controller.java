@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/pdf")
@@ -16,10 +18,15 @@ public class Controller {
 
     @Autowired
     PdfFileService service;
+
     @PostMapping(value = "")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PdfFile> saveNewPdf(@RequestBody String filePath) throws IOException {
         return new ResponseEntity<>(service.addNewFile(filePath), HttpStatus.CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<List<Map<String, String>>> getAllFiles(){
+        return ResponseEntity.ok(service.getAllFiles());
+    }
 }

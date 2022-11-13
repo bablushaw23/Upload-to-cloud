@@ -29,4 +29,12 @@ public class AwsService {
             throw new RuntimeException("Error while uploading odf to s3");
         }
     }
+
+    public String getS3Bucket() {
+        return s3Bucket;
+    }
+
+    public String getRegion(){
+        return s3Client.getRegionName();
+    }
 }
